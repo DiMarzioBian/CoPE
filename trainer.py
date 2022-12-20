@@ -88,16 +88,12 @@ class Trainer(object):
 
     def run_test(self):
         # testing phase
-        rank_test, loss_rec_test, loss_jump_test = self.rollout('testing')
-        loss_rec_test /= self.len_test_dl
-        loss_jump_test /= self.len_test_dl
-        loss_test = loss_rec_test + loss_jump_test * self.alpha_jump
+        rank_test, *_ = self.rollout('testing')
 
         recall_test = cal_recall(rank_test, self.k_metric)
         mrr_test = cal_mrr(rank_test)
 
-        self.noter.log_test(loss_test, loss_rec_test, loss_jump_test, recall_test, mrr_test)
-
+        self.noter.log_test(recall_test, mrr_test)
         return [recall_test, mrr_test]
 
     def rollout(self, mode: str):

@@ -63,9 +63,8 @@ class Noter(object):
         self.write(msg)
 
     # print and save test phase result
-    def log_test(self, loss, loss_rec, loss_jump, recall, mrr):
-        msg = (f'\t| test  | loss {loss:.4f} | loss_rec {loss_rec:.4f} | loss_jump {loss_jump:.4f} '
-               f'| recall {recall:.4f} | mrr {mrr:.4f} |')
+    def log_test(self, recall, mrr):
+        msg = f'\t| test  | recall {recall:.4f} | mrr {mrr:.4f} |'
         print(msg)
         self.write(msg)
 
