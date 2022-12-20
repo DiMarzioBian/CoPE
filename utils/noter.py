@@ -23,6 +23,7 @@ class Noter(object):
 
         self.welcome = ('-' * 20 + ' Experiment: CoPE (CIKM\'21) ' + '-' * 20)
         print('\n' + self.welcome)
+        self.write(self.welcome + '\n')
 
     # write into log file
     def write(self, msg):
@@ -37,9 +38,9 @@ class Noter(object):
     # print and save experiment briefs
     def log_brief(self):
         msg = f'\n[Info] Experiment (dataset:{self.dataset}, cuda:{self.cuda}) ' \
-              f'\n\t| lr {self.lr:.0e} | weight_decay {self.weight_decay:.0e} | alpha_jump {self.alpha_jump:.0e} |'
+              f'\n\t| lr {self.lr:.0e} | weight_decay {self.weight_decay:.0e} | alpha_jump {self.alpha_jump:.0e} |\n'
         print(msg)
-        self.write(self.welcome + '\n' + msg)
+        self.write(msg)
 
     # save args into log file
     def save_args(self):
@@ -70,7 +71,7 @@ class Noter(object):
 
     # print and save final result
     def log_final_result(self, epoch: int, dict_res: dict):
-        msg = f'\n[info] Modeling ends at epoch {epoch}' + '\n'
+        msg = f'\n[info] Modeling ends at epoch {epoch}'
         self.log_brief()
 
         for type_mode, res in dict_res.items():

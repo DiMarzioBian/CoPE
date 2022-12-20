@@ -48,13 +48,11 @@ python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 
 ```
 | data  |  mrr   | hr@10  | alpha_jump |  lr  | weight_decay |
 |:-----:|:------:|:------:|:----------:|:----:|:------------:|
-| video |        |        |    1e-2    | 1e-3 |     1e-2     | 
-| video |        |        |    1e-3    | 1e-3 |     1e-2     | 
-| video |        |        |    1e-4    | 1e-3 |     1e-2     | 
-| video |        |        |    1e-5    | 1e-3 |     1e-2     |     
-| video |        |        |     0      | 1e-2 |     1e-2     |   
-| video | 0.0433 | 0.0848 |     0      | 1e-3 |     1e-2     |      
-| video |        |        |     0      | 1e-4 |     1e-2     |     
+| video | 201-0  |        |    1e-2    | 1e-3 |     1e-2     | 
+| video | 201-0  |        |    1e-3    | 1e-3 |     1e-2     | 
+| video | 201-0  |        |    1e-4    | 1e-3 |     1e-2     | 
+| video | 201-0  |        |    1e-5    | 1e-3 |     1e-2     |    
+| video | 0.0451 | 0.0905 |     0      | 1e-3 |     1e-2     |  
 
 
 # Game
