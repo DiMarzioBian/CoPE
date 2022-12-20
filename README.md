@@ -48,26 +48,30 @@ python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 
 ```
 | data  |  mrr   | hr@10  | alpha_jump |  lr  | weight_decay |
 |:-----:|:------:|:------:|:----------:|:----:|:------------:|
-| video | 201-0  |        |    1e-2    | 1e-3 |     1e-2     | 
-| video | 201-0  |        |    1e-3    | 1e-3 |     1e-2     | 
-| video | 201-0  |        |    1e-4    | 1e-3 |     1e-2     | 
-| video | 201-0  |        |    1e-5    | 1e-3 |     1e-2     |    
+| video | 0.0234 | 0.0466 |    1e-2    | 1e-3 |     1e-2     | 
+| video | 0.0366 | 0.0711 |    1e-3    | 1e-3 |     1e-2     | 
+| video | 0.0392 | 0.0786 |    1e-4    | 1e-3 |     1e-2     | 
+| video | 0.0450 | 0.0894 |    1e-5    | 1e-3 |     1e-2     |    
 | video | 0.0451 | 0.0905 |     0      | 1e-3 |     1e-2     |  
 
 
 # Game
-
-
-| data | mrr | hr@10 | alpha_jump | lr  | weight_decay |
-|:----:|:---:|:-----:|:----------:|:---:|:------------:|
-| game |     |       |            |     |              |
-| game |     |       |            |     |              |
-| game |     |       |            |     |              |
+```shell
+python main.py --cuda 0 --data game --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+```
+| data |  mrr   | hr@10  | alpha_jump |  lr  | weight_decay |
+|:----:|:------:|:------:|:----------:|:----:|:------------:|
+| game | 201-1  |        |    1e-2    | 1e-3 |     1e-3     |
+| game | 201-1  |        |    1e-3    | 1e-3 |     1e-3     |
+| game | 201-1  |        |    1e-4    | 1e-3 |     1e-3     |
+| game | 201-1  |        |    1e-5    | 1e-3 |     1e-3     |
+| game | 0.0307 | 0.0585 |     0      | 1e-3 |     1e-3     |
 
 
 # ML100K
-
-
+```shell
+python main.py --cuda 0 --data ml --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+```
 | data | mrr | hr@10 | alpha_jump | lr  | weight_decay |
 |:----:|:---:|:-----:|:----------:|:---:|:------------:|
 |  ml  |     |       |            |     |              |
@@ -76,8 +80,9 @@ python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 
 
 
 # Yoo
-
-
+```shell
+python main.py --cuda 0 --data yoo --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+```
 | data | mrr | hr@10 | alpha_jump | lr  | weight_decay |
 |:----:|:---:|:-----:|:----------:|:---:|:------------:|
 | yoo  |     |       |            |     |              |
