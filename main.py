@@ -10,7 +10,7 @@ from utils.constant import MAPPING_DATASET, IDX_PAD
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dataset', type=str, default='garden', help='garden, video, game, ml, mlm or yoo')
+    parser.add_argument('--data', type=str, default='garden', help='garden, video, game, ml, mlm or yoo')
 
     # cgnn
     parser.add_argument('--inv_order', type=int, default=10, help='order of Neumann series')
@@ -35,7 +35,7 @@ def main():
     parser.add_argument('--n_lr_decay', type=int, default=5)
 
     # training settings
-    parser.add_argument('--cuda', type=int, default=0)
+    parser.add_argument('--cuda', type=str, default='0')
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--k_metric', type=int, default=10)
     parser.add_argument('--proportion_train', type=float, default=0.8, help='proportion of training set')
@@ -45,7 +45,7 @@ def main():
     args = parser.parse_args()
 
     args.idx_pad = IDX_PAD
-    (args.dataset, args.path_raw) = MAPPING_DATASET[args.dataset]
+    (args.dataset, args.path_raw) = MAPPING_DATASET[args.data]
     args.lr_min = args.lr ** (args.n_lr_decay + 1)
     args.path_raw = f'data/{args.path_raw}'
     args.path_csv = f'data_processed/{args.dataset}_5.csv'
@@ -53,7 +53,7 @@ def main():
     if not os.path.exists(args.path_log):
         os.makedirs(args.path_log)
 
-    args.device = torch.device('cuda:' + str(args.cuda)) if torch.cuda.is_available() else torch.device('cpu')
+    args.device = torch.device('cuda:' + args.cuda) if torch.cuda.is_available() else torch.device('cpu')
 
     # seeding
     np.random.seed(args.seed)

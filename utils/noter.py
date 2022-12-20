@@ -15,8 +15,8 @@ class Noter(object):
         self.weight_decay = args.weight_decay
         self.alpha_jump = args.alpha_jump
 
-        self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.dataset + '-' +
-                          str(args.alpha_jump) + '.txt')
+        self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.data + '-gpu' +
+                          args.cuda + str(args.alpha_jump) + '.txt')
 
         if os.path.exists(self.f_log):
             os.remove(self.f_log)  # remove the existing file if duplicate
