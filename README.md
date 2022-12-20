@@ -4,6 +4,10 @@ This is an unofficial PyTorch implementation for CIKM'21 paper [CoPE: Modeling C
 
 The official PyTorch implementation by paper author is [here](https://github.com/FDUDSDE/CoPE).
 
+## Difference from official repo
+This project is re-written in my tuning framework from the paper's authors code.
+The only major difference is that I clone and detach the users' and items' embeddings during getting initial dynamic states.
+
 
 ## Usage
 
