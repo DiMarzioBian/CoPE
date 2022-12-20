@@ -72,6 +72,7 @@ class Noter(object):
     # print and save final result
     def log_final_result(self, epoch: int, dict_res: dict):
         msg = f'\n[info] Modeling ends at epoch {epoch}' + '\n'
+        self.log_brief()
 
         for type_mode, res in dict_res.items():
             msg += f'\n\t| {type_mode} | epoch {res[0]} | recall_test {res[1]:.4f} | mrr_test {res[2]:.4f} |'
