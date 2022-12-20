@@ -7,8 +7,8 @@ The official PyTorch implementation by paper author is [here](https://github.com
 ## Difference from official repo
 This project is re-written in my tuning framework from the paper's authors code.
 - The only major difference is that I clone and detach the users' and items' embeddings during getting initial dynamic states.
-- Same as the paper's author's code, meta-learning is not adopted. I've tried both but the changes on result is relatively small.
-- Fast adaptation is not adopted.
+- Same as the paper's author's code, meta-learning is not adopted. I've tried w/ and w/o but the difference on result is relatively small.
+- Fast adaptation is not adopted which requires training on validation and testing time.
 
 
 ## Usage
@@ -33,24 +33,28 @@ python main.py
 ```shell
 python main.py --cuda 0 --data garden --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
 ```
-
 |  data  |  mrr   | hr@10  | alpha_jump |
 |:------:|:------:|:------:|:----------:|
-| garden |        |        |    1e-2    |
-| garden |        |        |    1e-3    |
+| garden | 0.0782 | 0.1935 |    1e-2    |
+| garden | 0.0812 | 0.1935 |    1e-3    |
 | garden | 0.0842 | 0.1837 |    1e-4    | 
 | garden | 0.0853 | 0.1905 |    1e-5    |
 | garden | 0.0820 | 0.1913 |     0      |
 
 
 # Video
-
-
-| data  | mrr | hr@10 | alpha_jump | lr  | weight_decay |
-|:-----:|:---:|:-----:|:----------:|:---:|:------------:|
-| video |     |       |            |     |              |
-| video |     |       |            |     |              |
-| video |     |       |            |     |              |
+```shell
+python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+```
+| data  |  mrr   | hr@10  | alpha_jump |  lr  | weight_decay |
+|:-----:|:------:|:------:|:----------:|:----:|:------------:|
+| video |        |        |    1e-2    | 1e-3 |     1e-2     | 
+| video |        |        |    1e-3    | 1e-3 |     1e-2     | 
+| video |        |        |    1e-4    | 1e-3 |     1e-2     | 
+| video |        |        |    1e-5    | 1e-3 |     1e-2     |     
+| video |        |        |     0      | 1e-2 |     1e-2     |   
+| video | 0.0433 | 0.0848 |     0      | 1e-3 |     1e-2     |      
+| video |        |        |     0      | 1e-4 |     1e-2     |     
 
 
 # Game
