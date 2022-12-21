@@ -62,8 +62,8 @@ python main.py --cuda 0 --data game --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
 | data |  mrr   | hr@10  | alpha_jump |  lr  | weight_decay |
 |:----:|:------:|:------:|:----------:|:----:|:------------:|
 | game | 0.0285 | 0.0554 |    1e-2    | 1e-3 |     1e-3     |
-| game | 201-1  |        |    1e-3    | 1e-3 |     1e-3     |
-| game | 201-1  |        |    1e-4    | 1e-3 |     1e-3     |
+| game | 0.0288 | 0.0560 |    1e-3    | 1e-3 |     1e-3     |
+| game | 0.0297 | 0.0572 |    1e-4    | 1e-3 |     1e-3     |
 | game | 201-1  |        |    1e-5    | 1e-3 |     1e-3     |
 | game | 0.0307 | 0.0585 |     0      | 1e-3 |     1e-3     |
 

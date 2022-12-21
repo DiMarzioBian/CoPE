@@ -71,7 +71,7 @@ class Noter(object):
 
     # print and save final result
     def log_final_result(self, epoch: int, dict_res: dict):
-        msg = f'[info] Modeling ends at epoch {epoch}'
+        msg = '-' * 10 + f'Modeling ends at epoch {epoch}' + '-' * 10
         self.log_brief()
 
         for type_mode, res in dict_res.items():
