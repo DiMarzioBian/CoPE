@@ -54,7 +54,7 @@ python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 
 | video | 0.0450 | 0.0894 |    1e-5    | 1e-3 |     1e-2     |
 | video | 0.0433 | 0.0848 |     0      | 1e-3 |     1e-2     |
 | video |        |        |    1e-2    | 1e-3 |     2e-2     | 
-| video |        |        |    1e-3    | 1e-3 |     2e-2     | 
+| video | 0.0348 | 0.0805 |    1e-3    | 1e-3 |     2e-2     | 
 | video | 0.0445 | 0.0959 |    1e-4    | 1e-3 |     2e-2     | 
 | video | 0.0468 | 0.0959 | ***1e-5*** | 1e-3 |     2e-2     |
 | video | 0.0465 | 0.0951 |     0      | 1e-3 |     2e-2     |
