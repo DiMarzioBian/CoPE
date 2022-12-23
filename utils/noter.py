@@ -67,11 +67,10 @@ class Noter(object):
 
     # print and save final result
     def log_final_result(self, epoch: int, dict_res: dict):
-        self.log_msg('-' * 10 + f' CoPE experiment ends at epoch {epoch} ' + '-' * 10)
+        self.log_msg('\n' + '-' * 10 + f' CoPE experiment ends at epoch {epoch} ' + '-' * 10)
         self.log_brief()
 
         msg = ''
         for type_mode, res in dict_res.items():
-            msg += f'\n\t| {type_mode} | epoch {res[0]} | recall_test {res[1]:.4f} | mrr_test {res[2]:.4f} |'
-        msg += '\n'
+            msg += f'\t| {type_mode} | epoch {res[0]} | recall_test {res[1]:.4f} | mrr_test {res[2]:.4f} |\n'
         self.log_msg(msg)
