@@ -91,8 +91,8 @@ def main():
             msg_best_val += f' mrr |'
 
         if len(msg_best_val) > 0:
-            noter.log_msg('\t| new   |' + msg_best_val)
             res_test = trainer.run_test()
+            noter.log_msg('\t| new   |' + msg_best_val)
 
             if 'loss' in msg_best_val:
                 res_loss_final = [epoch] + res_test
