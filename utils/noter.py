@@ -72,5 +72,5 @@ class Noter(object):
 
         msg = ''
         for type_mode, res in dict_res.items():
-            msg += f'\t| {type_mode} | epoch {res[0]} | recall_test {res[1]:.4f} | mrr_test {res[2]:.4f} |\n'
+            msg += f'\t| {type_mode} | epoch {res[0]} | recall {res[1]:.4f} | mrr {res[2]:.4f} |\n'
         self.log_msg(msg)
