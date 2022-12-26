@@ -85,13 +85,13 @@ python main.py --cuda 0 --data ml --lr 5e-4 --weight_decay 1e-3 --alpha_jump 0
 ```shell
 python main.py --cuda 0 --data mlm --lr 5e-4 --weight_decay 1e-3 --alpha_jump 1e-5
 ```
-| data | mrr | hr@10 | alpha_jump |  lr  |  l2  |
-|:----:|:---:|:-----:|:----------:|:----:|:----:|
-|  ml  |     |       |    1e-2    | 5e-4 | 1e-3 |
-|  ml  |     |       |    1e-3    | 5e-4 | 1e-3 |
-|  ml  |     |       |    1e-4    | 5e-4 | 1e-3 |
-|  ml  |     |       |    1e-5    | 5e-4 | 1e-3 |
-|  ml  |     |       |     0      | 5e-4 | 1e-3 |
+| data |  mrr  | hr@10 | alpha_jump |  lr  |  l2  |
+|:----:|:-----:|:-----:|:----------:|:----:|:----:|
+|  ml  |       |       |    1e-2    | 5e-4 | 1e-3 |
+|  ml  |       |       |    1e-3    | 5e-4 | 1e-3 |
+|  ml  |       |       |    1e-4    | 5e-4 | 1e-3 |
+|  ml  | 201-0 |       |    1e-5    | 5e-4 | 1e-3 |
+|  ml  | 139-0 |       |     0      | 5e-4 | 1e-3 |
 
 
 # Yoo
