@@ -29,7 +29,7 @@ def main():
     parser.add_argument('--len_tbptt', type=int, default=20, help='truncated back propagation through time')
     parser.add_argument('--len_meta', type=int, default=5, help='conduct meta learning')
     parser.add_argument('--lr', type=float, default=1e-3, help='5e-2, 2e-2, 1e-2, 5e-3, 2e-3, 1e-3, 1e-4')
-    parser.add_argument('--weight_decay', type=float, default=5e-3, help='1e-3, 1e-4, 1e-5, 0')
+    parser.add_argument('--l2', type=float, default=5e-3, help='weight_decay, 1e-3, 1e-4, 1e-5, 0')
     parser.add_argument('--lr_step', type=int, default=10)
     parser.add_argument('--lr_gamma', type=float, default=0.5, help='i.e. gamma value')
     parser.add_argument('--n_lr_decay', type=int, default=5)

@@ -12,7 +12,7 @@ class Trainer(object):
         self.trainloader, self.valloader, self.testloader = get_dataloader(args)
         self.model = CoPE(args).to(args.device)
         self.optimizer = torch.optim.Adam(filter(lambda x: x.requires_grad, self.model.parameters()), lr=args.lr,
-                                          weight_decay=args.weight_decay)
+                                          weight_decay=args.l2)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=args.lr_step, gamma=args.lr_gamma)
         self.noter = noter
 

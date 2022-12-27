@@ -31,7 +31,7 @@ python main.py
 
 # Garden
 ```shell
-python main.py --cuda 0 --data garden --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+python main.py --cuda 0 --data garden --lr 1e-3 --l2 5e-3 --alpha_jump 0
 ```
 |  data  |  mrr   | hr@10  | alpha_jump |
 |:------:|:------:|:------:|:----------:|
@@ -44,7 +44,7 @@ python main.py --cuda 0 --data garden --lr 1e-3 --weight_decay 5e-3 --alpha_jump
 
 # Video
 ```shell
-python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+python main.py --cuda 0 --data video --lr 1e-3 --l2 5e-3 --alpha_jump 0
 ```
 | data  |  mrr   | hr@10  | alpha_jump |  lr  |  l2  |
 |:-----:|:------:|:------:|:----------:|:----:|:----:|
@@ -57,7 +57,7 @@ python main.py --cuda 0 --data video --lr 1e-3 --weight_decay 5e-3 --alpha_jump 
 
 # Game
 ```shell
-python main.py --cuda 0 --data game --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
+python main.py --cuda 0 --data game --lr 1e-3 --l2 5e-3 --alpha_jump 0
 ```
 | data |  mrr   | hr@10  | alpha_jump |  lr  |  l2  |
 |:----:|:------:|:------:|:----------:|:----:|:----:|
@@ -70,7 +70,7 @@ python main.py --cuda 0 --data game --lr 1e-3 --weight_decay 5e-3 --alpha_jump 0
 
 # ML100K
 ```shell
-python main.py --cuda 0 --data ml --lr 5e-4 --weight_decay 1e-3 --alpha_jump 0
+python main.py --cuda 0 --data ml --lr 5e-4 --l2 1e-3 --alpha_jump 0
 ```
 | data |  mrr   | hr@10  | alpha_jump |  lr  |  l2  |
 |:----:|:------:|:------:|:----------:|:----:|:----:|
@@ -83,7 +83,7 @@ python main.py --cuda 0 --data ml --lr 5e-4 --weight_decay 1e-3 --alpha_jump 0
 
 # ML1M
 ```shell
-python main.py --cuda 0 --data mlm --lr 5e-4 --weight_decay 1e-3 --alpha_jump 1e-5
+python main.py --cuda 0 --data mlm --lr 5e-4 --l2 1e-3 --alpha_jump 1e-5
 ```
 | data |  mrr  | hr@10 | alpha_jump |  lr  |  l2  |
 |:----:|:-----:|:-----:|:----------:|:----:|:----:|
@@ -96,7 +96,7 @@ python main.py --cuda 0 --data mlm --lr 5e-4 --weight_decay 1e-3 --alpha_jump 1e
 
 # Yoo
 ```bash
-python main.py --cuda 0 --data yoo --n_batch_load 20 --lr 1e-5 --lr_step 1 --lr_gamma 0.1 --weight_decay 2 --alpha_jump 0
+python main.py --cuda 0 --data yoo --n_batch_load 20 --lr 1e-5 --lr_step 1 --lr_gamma 0.1 --l2 2 --alpha_jump 0
 ```
 | data |  mrr   | hr@10  | alpha_jump |  lr  | l2  |
 |:----:|:------:|:------:|:----------:|:----:|:---:|

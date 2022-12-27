@@ -12,7 +12,7 @@ class Noter(object):
         self.dataset = args.dataset
 
         self.lr = args.lr
-        self.weight_decay = args.weight_decay
+        self.l2 = args.l2
         self.alpha_jump = args.alpha_jump
 
         self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.data + '-gpu' +
@@ -38,7 +38,7 @@ class Noter(object):
     # print and save experiment briefs
     def log_brief(self):
         msg = f'\n[Info] Experiment (dataset:{self.dataset}, cuda:{self.cuda}) ' \
-              f'\n\t| lr {self.lr:.0e} | weight_decay {self.weight_decay:.0e} | alpha_jump {self.alpha_jump:.0e} |\n'
+              f'\n\t| lr {self.lr:.0e} | l2 {self.l2:.0e} | alpha_jump {self.alpha_jump:.0e} |\n'
         self.log_msg(msg)
 
     # save args into log file
