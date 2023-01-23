@@ -129,8 +129,8 @@ def main():
 
     noter.log_final_result(epoch, {
         'loss  ': res_loss_final,
-        'recall': res_mrr_final,
-        'mrr   ': res_recall_final
+        'recall': res_recall_final,
+        'mrr   ': res_mrr_final,
     })
 
 
