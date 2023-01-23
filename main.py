@@ -11,6 +11,9 @@ from utils.constant import MAPPING_DATASET, IDX_PAD
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', type=str, default='garden', help='garden, video, game, ml, mlm or yoo')
+    parser.add_argument('--len_trend', type=float, default=5, help='length of trend window, for computing trend')
+    parser.add_argument('--k_trend', type=int, default=5, help='threshold of trending item in context')
+    parser.add_argument('--cal_trend', action='store_false', help='check trend, require trend files')
 
     # cgnn
     parser.add_argument('--inv_order', type=int, default=10, help='order of Neumann series')
@@ -50,9 +53,12 @@ def main():
     args.path_raw = f'data/{args.path_raw}'
     args.path_csv = f'data_processed/{args.dataset}_5.csv'
     args.path_log = f'log/'
-    if not os.path.exists(args.path_log):
-        os.makedirs(args.path_log)
+    args.path_mask_trend = f'data_processed/mask_trend/'
+    for p in [args.path_log, args.path_mask_trend]:
+        if not os.path.exists(p):
+            os.makedirs(p)
 
+    args.f_mask_trend = args.path_mask_trend + f'{args.data}_{args.proportion_train}_{args.len_trend}_{args.k_trend}.pkl'
     args.device = torch.device('cuda:' + args.cuda) if torch.cuda.is_available() else torch.device('cpu')
 
     # seeding
@@ -67,13 +73,13 @@ def main():
 
     # modeling
     recall_best, mrr_best, loss_best = 0, 0, 1e5
-    res_recall_final, res_mrr_final, res_loss_final = [0]*3, [0]*3, [0]*3
+    res_recall_final, res_mrr_final, res_loss_final = [0]*5, [0]*5, [0]*5
     epoch, es_counter = 0, 0
     lr_register = args.lr
 
     for epoch in range(1, args.n_epoch+1):
         noter.log_msg(f'\n[Epoch {epoch}]')
-        recall_val, mrr_val, loss_rec_val = trainer.run_one_epoch()
+        recall_val, mrr_val, loss_rec_val, _ = trainer.run_one_epoch()
         trainer.scheduler.step()
 
         # models selection

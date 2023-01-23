@@ -1,4 +1,6 @@
 import os
+import pickle
+from tqdm import tqdm
 import numpy as np
 import pandas as pd
 from scipy import sparse as sp
@@ -7,10 +9,13 @@ from prefetch_generator import BackgroundGenerator
 
 from utils.matrix import biadj_to_laplacian, biadj_to_propagation, sparse_mx_to_torch_sparse_tensor
 
+step_name = ['train', 'valid', 'test']
+step_counter = 0
+
 
 class ISRDataset:
     """ Incremental sequential recommendation dataset """
-    def __init__(self, args, df, df_0=None):
+    def __init__(self, args, df, df_0=None, mask_trend=None):
         self.n_user = args.n_user
         self.n_item = args.n_item
         self.n_neg_sample = args.n_neg_sample
@@ -23,6 +28,7 @@ class ISRDataset:
 
         # get index of unique timestamps
         self.ts_unique = np.unique(df['t'])
+        self.n_ts = len(self.ts_unique)
         end_idx_ts_dict = {t: i + 1 for i, t in enumerate(df['t'])}
 
         # inherit previous interactions
@@ -34,6 +40,36 @@ class ISRDataset:
         else:
             self.cum_n_records = np.array([0] + [end_idx_ts_dict[t] for t in self.ts_unique])
             self.df = df
+
+        # trend file
+        self.cal_trend = args.cal_trend
+        if args.cal_trend:
+            if mask_trend is not None:
+                self.mask_trend = mask_trend
+            else:
+                self.gen_trend(args.k_trend, args.len_trend)
+
+            self.n_trend = self.mask_trend[:, 0, :].sum()
+            self.n_non_trend = self.mask_trend[:, 1, :].sum()
+        else:
+            self.mask_trend = None
+            self.n_trend = self.n_non_trend = 1
+
+    def gen_trend(self, k_trend, len_trend):
+        self.mask_trend = torch.zeros(self.n_ts, 2, self.n_item - 1)
+
+        global step_counter
+        for idx in tqdm(range(self.n_ts), desc=f'- getting {step_name[step_counter]} trend', leave=False):
+            ts_now = self.ts_unique[idx]
+            df_tmp = self.df.loc[(self.df['t'] < ts_now) & (self.df['t'] >= (ts_now - len_trend))]
+            if len(df_tmp) > 0:
+                occur_i = df_tmp['i'].to_list()
+                for i in df_tmp['i'].unique():
+                    if occur_i.count(i) >= k_trend:
+                        self.mask_trend[idx, 0, i - 1] = 1
+                    else:
+                        self.mask_trend[idx, 1, i - 1] = 1
+        step_counter += 1
 
     def __len__(self):
         return len(self.ts_unique)
@@ -63,17 +99,23 @@ class ISRDataset:
         # get users' interactions sequence for short-term interest
         df_obs = self.df.iloc[:idx_tgt_start]
 
+        # get trend mask
+        if self.cal_trend:
+            mask_trend = self.mask_trend[idx]
+        else:
+            mask_trend = None
+
         if not output_diff:
             assert idx == 0
             df_h = df_obs.iloc[:idx_tgt_start]
             adj_obs = self.build_ui_mat(df_h)
-            return t_diff, adj_obs, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg
+            return t_diff, adj_obs, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg, mask_trend
         else:
             assert idx > 0
             idx_obs_diff_start = self.cum_n_records[idx - 1]
             df_h_diff = df_obs.iloc[idx_obs_diff_start:idx_tgt_start]
             adj_obs_diff = self.build_ui_mat(df_h_diff)
-            return t_diff, adj_obs_diff, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg
+            return t_diff, adj_obs_diff, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg, mask_trend
 
     def build_ui_mat(self, df):
         return sp.csc_matrix((np.ones(len(df)), (df.iloc[:, 0], df.iloc[:, 1])), shape=[self.n_user, self.n_item])
@@ -90,6 +132,7 @@ class Dataloader:
         self.alpha_spectrum = args.alpha_spectrum
         self.n_batch_load = args.n_batch_load
         self.length = len(self.ds)
+        self.n_trend, self.n_non_trend = ds.n_trend, ds.n_non_trend
 
     def __len__(self):
         return self.length
@@ -105,10 +148,10 @@ class Dataloader:
 
         for i in range(start_idx, len(self.ds)):
             if adj_obs is None:
-                t_diff, adj_obs, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg = \
+                t_diff, adj_obs, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg, mask_trend = \
                     self.ds.getitem(i, output_diff=False)
             else:
-                t_diff, adj_obs_diff, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg = \
+                t_diff, adj_obs_diff, adj_ins, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg, mask_trend = \
                     self.ds.getitem(i, output_diff=True)
                 adj_obs += adj_obs_diff
 
@@ -124,7 +167,10 @@ class Dataloader:
             tgt_u_neg = torch.from_numpy(tgt_u_neg).long().to(self.device)
             tgt_i_neg = torch.from_numpy(tgt_i_neg).long().to(self.device)
 
-            yield t_diff, adj_obs_laplacian, adj_ins_i2u, adj_ins_u2i, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg
+            if mask_trend is not None:
+                mask_trend = mask_trend.long().to(self.device)
+
+            yield t_diff, adj_obs_laplacian, adj_ins_i2u, adj_ins_u2i, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg, mask_trend
 
 
 def split_data(proportion_train, df):
@@ -137,17 +183,6 @@ def split_data(proportion_train, df):
     df_tr = df.iloc[:idx_val_start]
     df_val = df.iloc[idx_val_start:idx_test_start]
     df_te = df.iloc[idx_test_start:idx_test_end]
-
-    u_train = set(df_tr['u'].tolist())
-    u_new_val = set(df_val['u'].tolist()) - set(df_tr['u'].tolist())
-    u_new_te = set(df_te['u'].tolist()) - set(df_val['u'].tolist()) - set(df_tr['u'].tolist())
-
-    i_train = set(df_tr['i'].tolist())
-    i_new_val = set(df_val['i'].tolist()) - set(df_tr['i'].tolist())
-    i_new_te = set(df_te['i'].tolist()) - set(df_val['i'].tolist()) - set(df_tr['i'].tolist())
-
-    print(f'\t| new users | train {len(u_train)} |valid {len(u_new_val)} | test {len(u_new_te)} |'
-          f'\n\t| new items | train {len(i_train)} | valid {len(i_new_val)} | test {len(i_new_te)} |')
 
     return df_tr, df_val, df_te
 
@@ -174,22 +209,40 @@ def read_data(args):
     assert df['i'].max() == df['i'].nunique()
     assert (df['t'].diff().iloc[1:] >= 0).all()
     args.n_user, args.n_item = df.iloc[:, :2].max() + 1
-    print(f'\n[info] Dataset {args.dataset}\n\t| users {args.n_user} | items {args.n_item - 1} '
-          f'| interactions {len(df)} | timestamps {df["t"].nunique()} |')
 
     return df
 
 
-def get_dataloader(args):
+def get_dataloader(args, noter):
     df = read_data(args)
     df_tr, df_val, df_te = split_data(args.proportion_train, df)
 
+    if args.cal_trend:
+        if os.path.exists(args.f_mask_trend):
+            # load preprocessed mask_trend
+            with open(args.f_mask_trend, 'rb') as f:
+                mask_trend = pickle.load(f)
+            print(f'\n[info] Loading preprocessed mask_trend file.')
+        else:
+            mask_trend = {'tr': None, 'val': None, 'te': None}
+            print(f'\n[info] Failed loading preprocessed mask_trend file, re-creating it...')
+
     # pack to Dataset
-    ds_tr = ISRDataset(args, df_tr)
-    ds_val = ISRDataset(args, df_val, df_0=ds_tr.get_last_df())
-    ds_te = ISRDataset(args, df_te, df_0=ds_val.get_last_df())
-    print(f'\t| interactions | train {len(df_tr)} | valid {len(df_val)} | test {len(df_te)} |'
-          f'\n\t| timestamps   | train {len(ds_tr)} | valid {len(ds_val)} | test {len(ds_te)} |')
+    ds_tr = ISRDataset(args, df_tr, mask_trend=mask_trend['tr'])
+    ds_val = ISRDataset(args, df_val, df_0=ds_tr.get_last_df(), mask_trend=mask_trend['val'])
+    ds_te = ISRDataset(args, df_te, df_0=ds_val.get_last_df(), mask_trend=mask_trend['te'])
+    noter.log_msg(f'\n[info] Dataset')
+    noter.log_msg(f'\t| users {args.n_user} | items {args.n_item - 1} | interactions {len(df)} '
+                  f'| timestamps {df["t"].nunique()} |'
+                  f'\n\t| interactions | train {len(df_tr)} | valid {len(df_val)} | test {len(df_te)} |'
+                  f'\n\t| timestamps   | train {len(ds_tr)} | valid {len(ds_val)} | test {len(ds_te)} |')
+
+    # save mask_trend if none
+    if not os.path.exists(args.f_mask_trend):
+        with open(args.f_mask_trend, 'wb') as f:
+            pickle.dump({'tr': ds_tr.mask_trend,
+                         'val': ds_val.mask_trend,
+                         'te': ds_te.mask_trend}, f)
 
     # pack to DataLoader
     trainloader = Dataloader(args, ds_tr)

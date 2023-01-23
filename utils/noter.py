@@ -49,28 +49,33 @@ class Noter(object):
         self.write(info + '\n')
 
     # print and save train phase result
-    def log_train(self, loss, loss_rec, loss_jump, t_gap):
+    def log_train(self, loss, loss_rec, loss_jump, dxi, t_gap):
         msg = (f'\t| train | loss {loss:.4f} | loss_rec {loss_rec:.4f} | loss_jump {loss_jump:.4f} '
-               f'| time {t_gap:.1f}s |')
+               f'| time {t_gap:.1f}s | '
+               f'\n\t        | dxi_trend {dxi[0]:.4f} | dxi_non_trend {dxi[1]:.4f} |')
         self.log_msg(msg)
 
     # print and save valid phase result
-    def log_valid(self, loss, loss_rec, loss_jump, recall, mrr):
+    def log_valid(self, loss, loss_rec, loss_jump, mrr, recall, dxi):
         msg = (f'\t| valid | loss {loss:.4f} | loss_rec {loss_rec:.4f} | loss_jump {loss_jump:.4f} '
-               f'| recall {recall:.4f} | mrr {mrr:.4f} |')
+               f'| mrr {mrr:.4f} | recall {recall:.4f} |'
+               f'\n\t        | dxi_trend {dxi[0]:.4f} | dxi_non_trend {dxi[1]:.4f} |')
         self.log_msg(msg)
 
     # print and save test phase result
-    def log_test(self, recall, mrr):
-        msg = f'\t| test  | recall {recall:.4f} | mrr {mrr:.4f} |'
+    def log_test(self, mrr, recall, dxi):
+        msg = (f'\t| test  | mrr {mrr:.4f} | recall {recall:.4f} |'
+               f'\n\t        | dxi_trend {dxi[0]:.4f} | dxi_non_trend {dxi[1]:.4f} |')
         self.log_msg(msg)
 
     # print and save final result
     def log_final_result(self, epoch: int, dict_res: dict):
-        self.log_msg('\n' + '-' * 10 + f' CoPE experiment ends at epoch {epoch} ' + '-' * 10)
+        self.log_msg('\n' + '-' * 10 + f' TCGRec experiment ends at epoch {epoch} ' + '-' * 10)
         self.log_brief()
 
         msg = ''
         for type_mode, res in dict_res.items():
-            msg += f'\t| {type_mode} | epoch {res[0]} | recall {res[1]:.4f} | mrr {res[2]:.4f} |\n'
+            msg += f'\t| {type_mode} | epoch {res[0]} | mrr {res[1]:.4f} | recall {res[2]:.4f} ' \
+                   f'| dxi_trend {res[3]:.4f} | dxi_non_trend {res[4]:.4f} |\n'
         self.log_msg(msg)
+

@@ -44,7 +44,7 @@ python main.py --cuda 0 --data garden --lr 1e-3 --l2 5e-3 --alpha_jump 0
 
 # Video
 ```shell
-python main.py --cuda 0 --data video --lr 1e-3 --l2 5e-3 --alpha_jump 0
+python main.py --cuda 0 --data video --lr 1e-3 --l2 2e-2 --alpha_jump 1e-5
 ```
 | data  |  mrr   | hr@10  | alpha_jump |  lr  |  l2  |
 |:-----:|:------:|:------:|:----------:|:----:|:----:|
@@ -57,7 +57,7 @@ python main.py --cuda 0 --data video --lr 1e-3 --l2 5e-3 --alpha_jump 0
 
 # Game
 ```shell
-python main.py --cuda 0 --data game --lr 1e-3 --l2 5e-3 --alpha_jump 0
+python main.py --cuda 0 --data game --lr 1e-3 --l2 1e-3 --alpha_jump 1e-5
 ```
 | data |  mrr   | hr@10  | alpha_jump |  lr  |  l2  |
 |:----:|:------:|:------:|:----------:|:----:|:----:|
