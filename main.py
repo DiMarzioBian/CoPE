@@ -11,6 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', type=str, default='video', help='garden, video, game, ml, mlm or yoo')
     parser.add_argument('--case_study', action='store_false', help='order of Chebyshev polynomial')
+    parser.add_argument('--len_case_print', type=int, default=10, help='print length of case study in console')
 
     # cgnn
     parser.add_argument('--inv_order', type=int, default=10, help='order of Neumann series')
@@ -117,11 +118,6 @@ def main():
             if 'mrr' in msg_best_val:
                 res_mrr_final = [epoch] + res_test
 
-        # case study on amazon instant video dataset
-        if args.case_study:
-            noter.log_case(trainer.rank_u_mark)
-            trainer.reset_rank_case()
-
         # lr changing notice
         lr_current = trainer.scheduler.get_last_lr()[0]
         if lr_register != lr_current:
@@ -139,6 +135,11 @@ def main():
             es_counter = 0
             noter.log_msg(f'\t| es    | 0 / {args.es_patience} |')
 
+        # case study on amazon instant video dataset
+        if args.case_study:
+            noter.log_case(trainer.rank_u_mark)
+            trainer.reset_rank_case()
+
         if es_counter >= args.es_patience:
             break
 
@@ -147,6 +148,7 @@ def main():
         'recall': res_recall_final,
         'mrr   ': res_mrr_final,
     })
+    noter.save_case(res_case)
 
 
 if __name__ == '__main__':

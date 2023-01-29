@@ -93,8 +93,8 @@ def main():
 
     # detect dataset
     (dataset, f_name) = MAPPING_DATASET[args.dataset]
-    path_raw = os.getcwd() + f'/data/{f_name}'
-    path_csv = os.getcwd() + f'/data_processed/{dataset}_5.csv'
+    path_raw = f'../data/{f_name}'
+    path_csv = f'../data_processed/{dataset}_5.csv'
 
     if os.path.exists(path_raw):
         try:

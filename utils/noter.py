@@ -1,6 +1,7 @@
 import os
 from os.path import join
 import time
+import pickle
 
 from utils.constant import OCCUR_U_MARK
 
@@ -21,9 +22,10 @@ class Noter(object):
 
         self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.data + '-gpu' +
                           args.cuda + '-' + str(args.alpha_jump) + '.txt')
-
         self.f_case = join(args.path_case, time.strftime('cs-%m-%d-%H-%M-', time.localtime()) + '-' +
                            str(args.alpha_jump) + '.txt')
+
+        self.len_case_print = args.len_case_print
 
         for f in [self.f_log, self.f_case]:
             if os.path.exists(f):
@@ -85,13 +87,21 @@ class Noter(object):
 
     # print and save case study
     def log_case(self, res_case):
-        self.log_msg(f'\n\t| U-I 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]])} |'
-                     f'\n\t| U_I 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]])} |'
-                     f'\n\t| U_I 1-3 | {list2str(res_case[0][2][:self.occur_u_mark[0]])} |'
-                     f'\n\t| U_I 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]])} |'
-                     f'\n\t| U_I 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]])} |'
-                     f'\n\t| U_I 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]])} |'
+        self.log_msg(f'\n\t| 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                     f'\n\t| 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                     f'\n\t| 1-3 | {list2str(res_case[0][2][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                     f'\n\t| 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                     f'\n\t| 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                     f'\n\t| 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                     f'\n\t| 3-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                     f'\n\t| 3-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                     f'\n\t| 3-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
                      )
+
+    def save_case(self, dict_case):
+        with open(self.f_case, 'wr') as f:
+            pickle.dump(dict_case, f)
+        self.log_msg('[Info] Case study saved.\n')
 
 
 def list2str(l):

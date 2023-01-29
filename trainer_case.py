@@ -30,7 +30,7 @@ class Trainer(object):
         self.u_mark = U_MARK
         self.i_mark = I_MARK
         self.occur_u_mark = OCCUR_U_MARK
-        self.counter_u_mark_1, self.counter_u_mark_2 = 0, 0
+        self.counter_u_mark = [0] * len(self.occur_u_mark)
         self.rank_u_mark = np.ones((len(self.u_mark), len(self.i_mark), max(self.occur_u_mark))) * (-1)
 
         self.xu_t_plus = None
@@ -128,8 +128,8 @@ class Trainer(object):
             for batch in tqdm(dl, desc='  - ' + mode, leave=False):
                 (tgt_u, tgt_i) = batch[4:6]
                 loss_rec_batch, loss_jump_batch, xu_t_plus, xi_t_plus, xu_enc, xi_enc = self.model(batch,
-                                                                                                              xu_t_plus,
-                                                                                                              xi_t_plus)
+                                                                                                   xu_t_plus,
+                                                                                                   xi_t_plus)
 
                 loss_rec_total += loss_rec_batch.item() / len_dl
                 loss_jump_total += loss_jump_batch.item() / len_dl
@@ -158,25 +158,16 @@ class Trainer(object):
             self.rank_u_mark[idx_mark, i, counter] = r
 
     def get_rank_case(self, scores_u, tgt_u):
-        n1 = (tgt_u == self.u_mark[0]).nonzero(as_tuple=True)[0]
-        n2 = (tgt_u == self.u_mark[1]).nonzero(as_tuple=True)[0]
+        flag_u_mark = [(tgt_u == u).nonzero(as_tuple=True)[0] for u in self.u_mark]
 
-        if len(n1) != 0:
-            if len(n1) > 1:
-                n1 = n1[0]
-            self.cal_rank_case(scores_u[n1].squeeze(0), 0, self.counter_u_mark_1)
-            self.counter_u_mark_1 += 1
-
-        if len(n2) != 0:
-            if len(n2) > 1:
-                n2 = n2[0]
-            self.cal_rank_case(scores_u[n2].squeeze(0), 1, self.counter_u_mark_2)
-            self.counter_u_mark_2 += 1
+        for i, flag in enumerate(flag_u_mark):
+            if len(flag) != 0:
+                if len(flag) > 1:
+                    flag = flag[0]
+                self.cal_rank_case(scores_u[flag].squeeze(0), i, self.counter_u_mark[i])
+                self.counter_u_mark[i] += 1
 
     def reset_rank_case(self):
-        self.counter_u_mark_1 = 0
-        self.counter_u_mark_2 = 0
-
-        # assert self.rank_u_mark.sum() == self.occur_u_mark
+        self.counter_u_mark = [0] * len(self.occur_u_mark)
         self.rank_u_mark = np.ones((len(self.u_mark), len(self.i_mark), max(self.occur_u_mark))) * (-1)
 
