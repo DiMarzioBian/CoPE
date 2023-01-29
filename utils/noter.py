@@ -20,10 +20,10 @@ class Noter(object):
 
         self.occur_u_mark = OCCUR_U_MARK
 
-        self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.data + '-gpu' +
-                          args.cuda + '-' + str(args.alpha_jump) + '.txt')
-        self.f_case = join(args.path_case, time.strftime('cs-%m-%d-%H-%M-', time.localtime()) + '-' +
-                           str(args.alpha_jump) + '.txt')
+        self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.data +
+                          '-' + str(args.lr) + '-' + str(args.l2) + '-' + str(args.alpha_jump) + '.txt')
+        self.f_case = join(args.path_case, time.strftime('CoPE-case-%m-%d-%H-%M-', time.localtime()) + '-' + str(args.lr) +
+                           '-' + str(args.l2) + '-' + str(args.alpha_jump) + '.pkl')
 
         self.len_case_print = args.len_case_print
 
@@ -77,7 +77,7 @@ class Noter(object):
 
     # print and save final result
     def log_final_result(self, epoch: int, dict_res: dict):
-        self.log_msg('\n' + '-' * 10 + f' TCGRec experiment ends at epoch {epoch} ' + '-' * 10)
+        self.log_msg('\n' + '-' * 10 + f' CoPE (CIKM\'21) experiment ends at epoch {epoch} ' + '-' * 10)
         self.log_brief()
 
         msg = ''
@@ -93,13 +93,13 @@ class Noter(object):
                      f'\n\t| 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
                      f'\n\t| 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
                      f'\n\t| 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
-                     f'\n\t| 3-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
-                     f'\n\t| 3-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
-                     f'\n\t| 3-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                     f'\n\t| 3-1 | {list2str(res_case[2][0][:self.occur_u_mark[2]][:self.len_case_print])} |'
+                     f'\n\t| 3-2 | {list2str(res_case[2][1][:self.occur_u_mark[2]][:self.len_case_print])} |'
+                     f'\n\t| 3-3 | {list2str(res_case[2][2][:self.occur_u_mark[2]][:self.len_case_print])} |'
                      )
 
     def save_case(self, dict_case):
-        with open(self.f_case, 'wr') as f:
+        with open(self.f_case, 'wb') as f:
             pickle.dump(dict_case, f)
         self.log_msg('[Info] Case study saved.\n')
 

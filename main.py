@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data', type=str, default='video', help='garden, video, game, ml, mlm or yoo')
     parser.add_argument('--case_study', action='store_false', help='order of Chebyshev polynomial')
-    parser.add_argument('--len_case_print', type=int, default=10, help='print length of case study in console')
+    parser.add_argument('--len_case_print', type=int, default=11, help='print length of case study in console')
 
     # cgnn
     parser.add_argument('--inv_order', type=int, default=10, help='order of Neumann series')
