@@ -14,7 +14,6 @@ class CoPE(nn.Module):
         self.d_latent = args.d_latent
         self.n_neg_sample = args.n_neg_sample
         self.idx_pad = args.idx_pad
-        self.cal_trend = args.cal_trend
 
         # model architecture
         self.embeds_u = nn.Embedding(self.n_user, self.d_latent)
@@ -31,7 +30,7 @@ class CoPE(nn.Module):
         return self.embeds_u.weight.clone().detach(), self.embeds_i.weight.clone().detach()
 
     def forward(self, batch, xu_in, xi_in):
-        ts_diff, adj_obs, adj_ins_i2u, adj_ins_u2i, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg, mask_trend = batch
+        ts_diff, adj_obs, adj_ins_i2u, adj_ins_u2i, tgt_u, tgt_i, tgt_u_neg, tgt_i_neg = batch
 
         # propagate during non-events
         xu_t_minus, xi_t_minus = self.propagator(adj_obs, ts_diff, xu_in, xi_in,
@@ -57,14 +56,7 @@ class CoPE(nn.Module):
 
         loss_rec = self.cal_loss(xu_pos, xi_pos, xu_neg, xi_neg)
 
-        # calculate gradient between iterations
-        if self.cal_trend:
-            dxi = [((xi_t_plus - xi_in)[1:].detach() * mask_trend[0].unsqueeze(-1)).abs().sum(),
-                   ((xi_t_plus - xi_in)[1:].detach() * mask_trend[1].unsqueeze(-1)).abs().sum()]
-        else:
-            dxi = [0, 0]
-
-        return loss_rec, loss_jump, xu_t_plus, xi_t_plus, xu_pos, xi_enc, dxi
+        return loss_rec, loss_jump, xu_t_plus, xi_t_plus, xu_pos, xi_enc
 
     def cal_loss(self, xu_pos, xi_pos, xu_neg, xi_neg):
         pos_scores = self.predictor(xu_pos, xi_pos)

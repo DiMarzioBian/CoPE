@@ -2,6 +2,8 @@ import os
 from os.path import join
 import time
 
+from utils.constant import OCCUR_U_MARK
+
 
 class Noter(object):
 
@@ -15,11 +17,17 @@ class Noter(object):
         self.l2 = args.l2
         self.alpha_jump = args.alpha_jump
 
+        self.occur_u_mark = OCCUR_U_MARK
+
         self.f_log = join(args.path_log, time.strftime('%m-%d-%H-%M-', time.localtime()) + args.data + '-gpu' +
                           args.cuda + '-' + str(args.alpha_jump) + '.txt')
 
-        if os.path.exists(self.f_log):
-            os.remove(self.f_log)  # remove the existing file if duplicate
+        self.f_case = join(args.path_case, time.strftime('cs-%m-%d-%H-%M-', time.localtime()) + '-' +
+                           str(args.alpha_jump) + '.txt')
+
+        for f in [self.f_log, self.f_case]:
+            if os.path.exists(f):
+                os.remove(f)  # remove the existing file if duplicate
 
         self.welcome = ('-' * 20 + ' Experiment: CoPE (CIKM\'21) ' + '-' * 20)
         print('\n' + self.welcome)
@@ -49,23 +57,20 @@ class Noter(object):
         self.write(info + '\n')
 
     # print and save train phase result
-    def log_train(self, loss, loss_rec, loss_jump, dxi, t_gap):
+    def log_train(self, loss, loss_rec, loss_jump, t_gap):
         msg = (f'\t| train | loss {loss:.4f} | loss_rec {loss_rec:.4f} | loss_jump {loss_jump:.4f} '
-               f'| time {t_gap:.1f}s | '
-               f'\n\t        | dxi_trend {dxi[0]:.4f} | dxi_non_trend {dxi[1]:.4f} |')
+               f'| time {t_gap:.1f}s | ')
         self.log_msg(msg)
 
     # print and save valid phase result
-    def log_valid(self, loss, loss_rec, loss_jump, mrr, recall, dxi):
+    def log_valid(self, loss, loss_rec, loss_jump, mrr, recall):
         msg = (f'\t| valid | loss {loss:.4f} | loss_rec {loss_rec:.4f} | loss_jump {loss_jump:.4f} '
-               f'| mrr {mrr:.4f} | recall {recall:.4f} |'
-               f'\n\t        | dxi_trend {dxi[0]:.4f} | dxi_non_trend {dxi[1]:.4f} |')
+               f'| mrr {mrr:.4f} | recall {recall:.4f} |')
         self.log_msg(msg)
 
     # print and save test phase result
-    def log_test(self, mrr, recall, dxi):
-        msg = (f'\t| test  | mrr {mrr:.4f} | recall {recall:.4f} |'
-               f'\n\t        | dxi_trend {dxi[0]:.4f} | dxi_non_trend {dxi[1]:.4f} |')
+    def log_test(self, mrr, recall):
+        msg = f'\t| test  | mrr {mrr:.4f} | recall {recall:.4f} |'
         self.log_msg(msg)
 
     # print and save final result
@@ -75,7 +80,22 @@ class Noter(object):
 
         msg = ''
         for type_mode, res in dict_res.items():
-            msg += f'\t| {type_mode} | epoch {res[0]} | mrr {res[1]:.4f} | recall {res[2]:.4f} ' \
-                   f'| dxi_trend {res[3]:.4f} | dxi_non_trend {res[4]:.4f} |\n'
+            msg += f'\t| {type_mode} | epoch {res[0]} | mrr {res[1]:.4f} | recall {res[2]:.4f}\n'
         self.log_msg(msg)
 
+    # print and save case study
+    def log_case(self, res_case):
+        self.log_msg(f'\n\t| U-I 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]])} |'
+                     f'\n\t| U_I 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]])} |'
+                     f'\n\t| U_I 1-3 | {list2str(res_case[0][2][:self.occur_u_mark[0]])} |'
+                     f'\n\t| U_I 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]])} |'
+                     f'\n\t| U_I 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]])} |'
+                     f'\n\t| U_I 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]])} |'
+                     )
+
+
+def list2str(l):
+    msg = ''
+    for i in l:
+        msg += f' {str(int(i))}'
+    return msg[1:]

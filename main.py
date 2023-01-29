@@ -4,16 +4,13 @@ import numpy as np
 import torch
 
 from utils.noter import Noter
-from trainer import Trainer
 from utils.constant import MAPPING_DATASET, IDX_PAD
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default='garden', help='garden, video, game, ml, mlm or yoo')
-    parser.add_argument('--len_trend', type=float, default=5, help='length of trend window, for computing trend')
-    parser.add_argument('--k_trend', type=int, default=5, help='threshold of trending item in context')
-    parser.add_argument('--cal_trend', action='store_false', help='check trend, require trend files')
+    parser.add_argument('--data', type=str, default='video', help='garden, video, game, ml, mlm or yoo')
+    parser.add_argument('--case_study', action='store_false', help='order of Chebyshev polynomial')
 
     # cgnn
     parser.add_argument('--inv_order', type=int, default=10, help='order of Neumann series')
@@ -50,15 +47,17 @@ def main():
     args.idx_pad = IDX_PAD
     (args.dataset, args.path_raw) = MAPPING_DATASET[args.data]
     args.lr_min = args.lr ** (args.n_lr_decay + 1)
+    if args.dataset != 'aivideo':
+        args.case_study = False
+
     args.path_raw = f'data/{args.path_raw}'
     args.path_csv = f'data_processed/{args.dataset}_5.csv'
     args.path_log = f'log/'
-    args.path_mask_trend = f'data_processed/mask_trend/'
-    for p in [args.path_log, args.path_mask_trend]:
+    args.path_case = f'log/case_study/'
+    for p in [args.path_log, args.path_case]:
         if not os.path.exists(p):
             os.makedirs(p)
 
-    args.f_mask_trend = args.path_mask_trend + f'{args.data}_{args.proportion_train}_{args.len_trend}_{args.k_trend}.pkl'
     args.device = torch.device('cuda:' + args.cuda) if torch.cuda.is_available() else torch.device('cpu')
 
     # seeding
@@ -69,17 +68,22 @@ def main():
 
     # initialize
     noter = Noter(args)
+    if args.case_study:
+        from trainer_case import Trainer
+    else:
+        from trainer import Trainer
     trainer = Trainer(args, noter)
 
     # modeling
     recall_best, mrr_best, loss_best = 0, 0, 1e5
     res_recall_final, res_mrr_final, res_loss_final = [0]*5, [0]*5, [0]*5
+    res_case = {}
     epoch, es_counter = 0, 0
     lr_register = args.lr
 
     for epoch in range(1, args.n_epoch+1):
         noter.log_msg(f'\n[Epoch {epoch}]')
-        recall_val, mrr_val, loss_rec_val, _ = trainer.run_one_epoch()
+        recall_val, mrr_val, loss_rec_val = trainer.run_one_epoch()
         trainer.scheduler.step()
 
         # models selection
@@ -87,14 +91,20 @@ def main():
         if loss_rec_val < loss_best:
             loss_best = loss_rec_val
             msg_best_val += f' loss |'
+            if args.case_study:
+                res_case['loss'] = trainer.rank_u_mark
 
         if recall_val > recall_best:
             recall_best = recall_val
             msg_best_val += f' recall |'
+            if args.case_study:
+                res_case['recall'] = trainer.rank_u_mark
 
         if mrr_val > mrr_best:
             mrr_best = mrr_val
             msg_best_val += f' mrr |'
+            if args.case_study:
+                res_case['mrr'] = trainer.rank_u_mark
 
         if len(msg_best_val) > 0:
             res_test = trainer.run_test()
@@ -106,6 +116,11 @@ def main():
                 res_recall_final = [epoch] + res_test
             if 'mrr' in msg_best_val:
                 res_mrr_final = [epoch] + res_test
+
+        # case study on amazon instant video dataset
+        if args.case_study:
+            noter.log_case(trainer.rank_u_mark)
+            trainer.reset_rank_case()
 
         # lr changing notice
         lr_current = trainer.scheduler.get_last_lr()[0]

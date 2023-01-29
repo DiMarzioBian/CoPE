@@ -1,10 +1,12 @@
 import time
-from tqdm import tqdm
+import numpy as np
 import torch
+from tqdm import tqdm
 
 from dataloader import get_dataloader
 from models.CoPE import CoPE
 from utils.metrics import cal_mrr, cal_recall
+from utils.constant import U_MARK, I_MARK, OCCUR_U_MARK
 
 
 class Trainer(object):
@@ -23,6 +25,13 @@ class Trainer(object):
         self.len_tbptt = args.len_tbptt
         self.alpha_jump = args.alpha_jump
         self.k_metric = args.k_metric
+
+        self.case_study = args.case_study
+        self.u_mark = U_MARK
+        self.i_mark = I_MARK
+        self.occur_u_mark = OCCUR_U_MARK
+        self.counter_u_mark_1, self.counter_u_mark_2 = 0, 0
+        self.rank_u_mark = np.ones((len(self.u_mark), len(self.i_mark), max(self.occur_u_mark))) * (-1)
 
         self.xu_t_plus = None
         self.xi_t_plus = None
@@ -44,7 +53,8 @@ class Trainer(object):
 
         xu_t_plus, xi_t_plus = self.xu_t_plus, self.xi_t_plus
         for batch in tqdm(self.trainloader, desc='  - training', leave=False):
-            loss_rec_batch, loss_jump_batch, xu_t_plus, xi_t_plus, *_ = self.model(batch, xu_t_plus, xi_t_plus)
+            (tgt_u, tgt_i) = batch[4:6]
+            loss_rec_batch, loss_jump_batch, xu_t_plus, xi_t_plus, xu_enc, xi_enc = self.model(batch, xu_t_plus, xi_t_plus)
 
             loss_rec_tbptt += loss_rec_batch
             loss_jump_tbptt += loss_jump_batch
@@ -64,6 +74,9 @@ class Trainer(object):
                 xi_t_plus = xi_t_plus.detach()
 
                 count_tbptt, loss_rec_tbptt, loss_jump_tbptt = 0, 0, 0
+
+            scores_u = self.model.predictor(xu_enc, xi_enc[1:].squeeze(1).unsqueeze(0))
+            self.get_rank_case(scores_u, tgt_u)
 
         loss_rec_total /= self.len_train_dl
         loss_jump_total /= self.len_train_dl
@@ -93,7 +106,7 @@ class Trainer(object):
         recall_test = cal_recall(rank_test, self.k_metric)
         mrr_test = cal_mrr(rank_test)
 
-        self.noter.log_test(recall_test, mrr_test, )
+        self.noter.log_test(recall_test, mrr_test)
         return [recall_test, mrr_test]
 
     def rollout(self, mode: str):
@@ -121,8 +134,10 @@ class Trainer(object):
                 loss_rec_total += loss_rec_batch.item() / len_dl
                 loss_jump_total += loss_jump_batch.item() / len_dl
 
-                rank_u_batch = self.compute_rank(xu_enc, xi_enc[1:], tgt_i - 1)
+                rank_u_batch, scores_u = self.compute_rank(xu_enc, xi_enc[1:], tgt_i - 1)
                 rank_u.extend(rank_u_batch)
+
+                self.get_rank_case(scores_u, tgt_u)
 
             self.xu_t_plus = xu_t_plus.detach()
             self.xi_t_plus = xi_t_plus.detach()
@@ -135,4 +150,33 @@ class Trainer(object):
         for line, i in zip(scores, tgt_i):
             r = (line >= line[i]).sum().item()
             rank_u.append(r)
-        return rank_u
+        return rank_u, scores
+
+    def cal_rank_case(self, scores, idx_mark, counter):
+        for i, item in enumerate(self.i_mark):
+            r = (scores > scores[item]).sum().item() + 1
+            self.rank_u_mark[idx_mark, i, counter] = r
+
+    def get_rank_case(self, scores_u, tgt_u):
+        n1 = (tgt_u == self.u_mark[0]).nonzero(as_tuple=True)[0]
+        n2 = (tgt_u == self.u_mark[1]).nonzero(as_tuple=True)[0]
+
+        if len(n1) != 0:
+            if len(n1) > 1:
+                n1 = n1[0]
+            self.cal_rank_case(scores_u[n1].squeeze(0), 0, self.counter_u_mark_1)
+            self.counter_u_mark_1 += 1
+
+        if len(n2) != 0:
+            if len(n2) > 1:
+                n2 = n2[0]
+            self.cal_rank_case(scores_u[n2].squeeze(0), 1, self.counter_u_mark_2)
+            self.counter_u_mark_2 += 1
+
+    def reset_rank_case(self):
+        self.counter_u_mark_1 = 0
+        self.counter_u_mark_2 = 0
+
+        # assert self.rank_u_mark.sum() == self.occur_u_mark
+        self.rank_u_mark = np.ones((len(self.u_mark), len(self.i_mark), max(self.occur_u_mark))) * (-1)
+
