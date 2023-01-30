@@ -64,6 +64,9 @@ class Trainer(object):
             loss_rec_total += loss_rec_batch.item()
             loss_jump_total += loss_jump_batch.item()
 
+            scores_u = self.model.predictor(xu_enc, xi_enc[1:].squeeze(1).unsqueeze(0))
+            self.get_rank_case(scores_u, tgt_u)
+
             if (count_tbptt % self.len_tbptt) == 0 or count_total == self.len_train_dl:
                 loss = (loss_rec_tbptt + loss_jump_tbptt * self.alpha_jump) / count_tbptt
                 loss.backward()
@@ -74,9 +77,6 @@ class Trainer(object):
                 xi_t_plus = xi_t_plus.detach()
 
                 count_tbptt, loss_rec_tbptt, loss_jump_tbptt = 0, 0, 0
-
-            scores_u = self.model.predictor(xu_enc, xi_enc[1:].squeeze(1).unsqueeze(0))
-            self.get_rank_case(scores_u, tgt_u)
 
         loss_rec_total /= self.len_train_dl
         loss_jump_total /= self.len_train_dl
