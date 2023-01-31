@@ -87,15 +87,7 @@ class Noter(object):
 
     # print and save case study
     def log_case(self, res_case):
-        if len(OCCUR_U_MARK) == 2:
-            self.log_msg(f'\n\t| 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]][:self.len_case_print])} |'
-                         f'\n\t| 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]][:self.len_case_print])} |'
-                         f'\n\t| 1-3 | {list2str(res_case[0][2][:self.occur_u_mark[0]][:self.len_case_print])} |'
-                         f'\n\t| 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
-                         f'\n\t| 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
-                         f'\n\t| 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
-                         )
-        else:
+        if len(OCCUR_U_MARK) == 3:
             # assert len(OCCUR_U_MARK) == 3
             self.log_msg(f'\n\t| 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]][:self.len_case_print])} |'
                          f'\n\t| 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]][:self.len_case_print])} |'
@@ -106,6 +98,30 @@ class Noter(object):
                          f'\n\t| 3-1 | {list2str(res_case[2][0][:self.occur_u_mark[2]][:self.len_case_print])} |'
                          f'\n\t| 3-2 | {list2str(res_case[2][1][:self.occur_u_mark[2]][:self.len_case_print])} |'
                          f'\n\t| 3-3 | {list2str(res_case[2][2][:self.occur_u_mark[2]][:self.len_case_print])} |'
+                         )
+        elif len(OCCUR_U_MARK) == 4:
+            # assert len(OCCUR_U_MARK) == 3
+            self.log_msg(f'\n\t| 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                         f'\n\t| 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                         f'\n\t| 1-3 | {list2str(res_case[0][2][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                         f'\n\t| 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                         f'\n\t| 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                         f'\n\t| 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                         f'\n\t| 3-1 | {list2str(res_case[2][0][:self.occur_u_mark[2]][:self.len_case_print])} |'
+                         f'\n\t| 3-2 | {list2str(res_case[2][1][:self.occur_u_mark[2]][:self.len_case_print])} |'
+                         f'\n\t| 3-3 | {list2str(res_case[2][2][:self.occur_u_mark[2]][:self.len_case_print])} |'
+                         f'\n\t| 4-1 | {list2str(res_case[3][0][:self.occur_u_mark[3]][:self.len_case_print])} |'
+                         f'\n\t| 4-2 | {list2str(res_case[3][1][:self.occur_u_mark[3]][:self.len_case_print])} |'
+                         f'\n\t| 4-3 | {list2str(res_case[3][2][:self.occur_u_mark[3]][:self.len_case_print])} |'
+                         )
+        else:
+            # assert len(OCCUR_U_MARK) >= 2:
+            self.log_msg(f'\n\t| 1-1 | {list2str(res_case[0][0][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                         f'\n\t| 1-2 | {list2str(res_case[0][1][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                         f'\n\t| 1-3 | {list2str(res_case[0][2][:self.occur_u_mark[0]][:self.len_case_print])} |'
+                         f'\n\t| 2-1 | {list2str(res_case[1][0][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                         f'\n\t| 2-2 | {list2str(res_case[1][1][:self.occur_u_mark[1]][:self.len_case_print])} |'
+                         f'\n\t| 2-3 | {list2str(res_case[1][2][:self.occur_u_mark[1]][:self.len_case_print])} |'
                          )
 
     def save_case(self, dict_case):
