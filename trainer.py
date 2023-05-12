@@ -29,6 +29,10 @@ class Trainer(object):
 
         self.noter.log_brief()
 
+    def detach_states(self):
+        self.xu_t_plus = self.xu_t_plus.detach()
+        self.xi_t_plus = self.xi_t_plus.detach()
+
     def run_one_epoch(self):
         self.xu_t_plus, self.xi_t_plus = self.model.get_init_states()
         self.run_train()
@@ -42,9 +46,9 @@ class Trainer(object):
         self.model.train()
         self.optimizer.zero_grad()
 
-        xu_t_plus, xi_t_plus = self.xu_t_plus, self.xi_t_plus
         for batch in tqdm(self.trainloader, desc='  - training', leave=False):
-            loss_rec_batch, loss_jump_batch, xu_t_plus, xi_t_plus, *_ = self.model(batch, xu_t_plus, xi_t_plus)
+            loss_rec_batch, loss_jump_batch, self.xu_t_plus, self.xi_t_plus, *_ = \
+                self.model(batch, self.xu_t_plus, self.xi_t_plus)
 
             loss_rec_tbptt += loss_rec_batch
             loss_jump_tbptt += loss_jump_batch
@@ -60,18 +64,14 @@ class Trainer(object):
                 self.optimizer.step()
                 self.optimizer.zero_grad()
 
-                xu_t_plus = xu_t_plus.detach()
-                xi_t_plus = xi_t_plus.detach()
-
                 count_tbptt, loss_rec_tbptt, loss_jump_tbptt = 0, 0, 0
+                self.detach_states()
 
         loss_rec_total /= self.len_train_dl
         loss_jump_total /= self.len_train_dl
         loss_tr = loss_rec_total + loss_jump_total
 
         self.noter.log_train(loss_tr, loss_rec_total, loss_jump_total, time.time() - time_start)
-        self.xu_t_plus = xu_t_plus  # detached at last batch
-        self.xi_t_plus = xi_t_plus
 
     def run_valid(self):
         # validating phase

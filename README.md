@@ -31,7 +31,7 @@ python main.py
 
 # Garden
 ```shell
-python main.py --cuda 0 --data garden --lr 1e-3 --l2 5e-3 --alpha_jump 0
+python main.py --cuda 0 --data garden --lr 1e-3 --l2 5e-3 --alpha_jump 1e-5
 ```
 |  data  |  mrr   | hr@10  | alpha_jump |
 |:------:|:------:|:------:|:----------:|

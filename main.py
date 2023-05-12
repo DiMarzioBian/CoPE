@@ -9,9 +9,7 @@ from utils.constant import MAPPING_DATASET, IDX_PAD
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default='video', help='garden, video, game, ml, mlm or yoo')
-    parser.add_argument('--case_study', action='store_false', help='order of Chebyshev polynomial')
-    parser.add_argument('--len_case_print', type=int, default=11, help='print length of case study in console')
+    parser.add_argument('--data', type=str, default='garden', help='garden, video, game, ml, mlm or yoo')
 
     # cgnn
     parser.add_argument('--inv_order', type=int, default=10, help='order of Neumann series')
@@ -48,14 +46,11 @@ def main():
     args.idx_pad = IDX_PAD
     (args.dataset, args.path_raw) = MAPPING_DATASET[args.data]
     args.lr_min = args.lr ** (args.n_lr_decay + 1)
-    if args.dataset != 'aivideo':
-        args.case_study = False
 
     args.path_raw = f'data/{args.path_raw}'
     args.path_csv = f'data_processed/{args.dataset}_5.csv'
     args.path_log = f'log/'
-    args.path_case = f'log/case_study/'
-    for p in [args.path_log, args.path_case]:
+    for p in [args.path_log]:
         if not os.path.exists(p):
             os.makedirs(p)
 
@@ -69,16 +64,12 @@ def main():
 
     # initialize
     noter = Noter(args)
-    if args.case_study:
-        from trainer_case import Trainer
-    else:
-        from trainer import Trainer
+    from trainer import Trainer
     trainer = Trainer(args, noter)
 
     # modeling
     recall_best, mrr_best, loss_best = 0, 0, 1e5
     res_recall_final, res_mrr_final, res_loss_final = [0]*5, [0]*5, [0]*5
-    res_case = {}
     epoch, es_counter = 0, 0
     lr_register = args.lr
 
@@ -92,20 +83,14 @@ def main():
         if loss_rec_val < loss_best:
             loss_best = loss_rec_val
             msg_best_val += f' loss |'
-            if args.case_study:
-                res_case['loss'] = trainer.rank_u_mark
 
         if recall_val > recall_best:
             recall_best = recall_val
             msg_best_val += f' recall |'
-            if args.case_study:
-                res_case['recall'] = trainer.rank_u_mark
 
         if mrr_val > mrr_best:
             mrr_best = mrr_val
             msg_best_val += f' mrr |'
-            if args.case_study:
-                res_case['mrr'] = trainer.rank_u_mark
 
         if len(msg_best_val) > 0:
             res_test = trainer.run_test()
@@ -135,11 +120,6 @@ def main():
             es_counter = 0
             noter.log_msg(f'\t| es    | 0 / {args.es_patience} |')
 
-        # case study on amazon instant video dataset
-        if args.case_study:
-            noter.log_case(trainer.rank_u_mark)
-            trainer.reset_rank_case()
-
         if es_counter >= args.es_patience:
             break
 
@@ -148,7 +128,6 @@ def main():
         'recall': res_recall_final,
         'mrr   ': res_mrr_final,
     })
-    noter.save_case(res_case)
 
 
 if __name__ == '__main__':
