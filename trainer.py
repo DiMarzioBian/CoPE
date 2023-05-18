@@ -76,8 +76,6 @@ class Trainer(object):
     def run_valid(self):
         # validating phase
         rank_val, loss_rec_val, loss_jump_val = self.rollout('validating')
-        loss_rec_val /= self.len_val_dl
-        loss_jump_val /= self.len_val_dl
         loss_val = loss_rec_val + loss_jump_val * self.alpha_jump
 
         recall_val = cal_recall(rank_val, self.k_metric)
