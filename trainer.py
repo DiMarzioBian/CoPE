@@ -55,8 +55,8 @@ class Trainer(object):
             count_tbptt += 1
             count_total += 1
 
-            loss_rec_total += loss_rec_batch.item()
-            loss_jump_total += loss_jump_batch.item()
+            loss_rec_total += loss_rec_batch.item() / self.len_train_dl
+            loss_jump_total += loss_jump_batch.item() / self.len_train_dl
 
             if (count_tbptt % self.len_tbptt) == 0 or count_total == self.len_train_dl:
                 loss = (loss_rec_tbptt + loss_jump_tbptt * self.alpha_jump) / count_tbptt
@@ -67,8 +67,6 @@ class Trainer(object):
                 count_tbptt, loss_rec_tbptt, loss_jump_tbptt = 0, 0, 0
                 self.detach_states()
 
-        loss_rec_total /= self.len_train_dl
-        loss_jump_total /= self.len_train_dl
         loss_tr = loss_rec_total + loss_jump_total
 
         self.noter.log_train(loss_tr, loss_rec_total, loss_jump_total, time.time() - time_start)
@@ -113,8 +111,8 @@ class Trainer(object):
             for batch in tqdm(dl, desc='  - ' + mode, leave=False):
                 (tgt_u, tgt_i) = batch[4:6]
                 loss_rec_batch, loss_jump_batch, xu_t_plus, xi_t_plus, xu_enc, xi_enc = self.model(batch,
-                                                                                                              xu_t_plus,
-                                                                                                              xi_t_plus)
+                                                                                                   xu_t_plus,
+                                                                                                   xi_t_plus)
 
                 loss_rec_total += loss_rec_batch.item() / len_dl
                 loss_jump_total += loss_jump_batch.item() / len_dl
